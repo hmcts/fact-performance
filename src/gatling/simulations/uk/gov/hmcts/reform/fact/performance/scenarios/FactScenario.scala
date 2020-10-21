@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.fact.performance.scenarios
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import uk.gov.hmcts.reform.fact.performance.scenarios.utils.Environment
-
 import scala.concurrent.duration._
 
 object FactScenario {
@@ -31,17 +30,14 @@ object FactScenario {
       .get(BaseURL + "/search-option")
       .headers(CommonHeader)
       .headers(GetHeader)
-      .check(regex("<form action=.(.+?). method=.(post|get). novalidate>").ofType[(String, String)].find.optional.saveAs("action"))
+      .check(regex("<form action=.(.+?). method=.(?:post|get). novalidate>").find.optional.saveAs("action"))
       .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
       .check(regex("Do you know the name")))
 
-    .exec { session =>
-      println(session)
-      session
-        .set("paramName", session("radioInput").as[(String, String)]._1)
-        .set("paramValue", session("radioInput").as[(String, String)]._2)
-        .set("actionURL", session("action").as[(String, String)]._1)
-        .set("actionMethod", session("action").as[(String, String)]._2)
+    .exec { session => session
+      .set("paramName", session("radioInput").as[(String, String)]._1)
+      .set("paramValue", session("radioInput").as[(String, String)]._2)
+      .set("actionURL", session("action").as[String])
     }
 
     .pause(MinThinkTime seconds, MaxThinkTime seconds)
@@ -59,7 +55,7 @@ object FactScenario {
         .headers(CommonHeader)
         .headers(PostHeader)
         .formParam("${paramName}", "${paramValue}")
-        .check(regex("<form action=.(.+?). method=.(post|get). novalidate>").ofType[(String, String)].find.optional.saveAs("action"))
+        .check(regex("<form action=.(.+?). method=.(?:post|get). novalidate>").find.optional.saveAs("action"))
         .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
         .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=""|aria-describedby)""").find.optional.saveAs("textInput"))
         .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
@@ -73,8 +69,7 @@ object FactScenario {
           session => session
             .set("paramName", session("radioInput").as[(String, String)]._1)
             .set("paramValue", session("radioInput").as[(String, String)]._2)
-            .set("actionURL", session("action").as[(String, String)]._1)
-            .set("actionMethod", session("action").as[(String, String)]._2)
+            .set("actionURL", session("action").as[String])
         }
       } {
         doIf("${textInput.exists()}") {
@@ -83,8 +78,7 @@ object FactScenario {
               session => session
                 .set("paramName", session("textInput").as[String])
                 .set("paramValue", "EH1 9SP")
-                .set("actionURL", session("action").as[(String, String)]._1)
-                .set("actionMethod", session("action").as[(String, String)]._2)
+                .set("actionURL", session("action").as[String])
             }
           }
           {
@@ -92,8 +86,7 @@ object FactScenario {
               session => session
                 .set("paramName", session("textInput").as[String])
                 .set("paramValue", "Blackburn")
-                .set("actionURL", session("action").as[(String, String)]._1)
-                .set("actionMethod", session("action").as[(String, String)]._2)
+                .set("actionURL", session("action").as[String])
             }
           }
         }
