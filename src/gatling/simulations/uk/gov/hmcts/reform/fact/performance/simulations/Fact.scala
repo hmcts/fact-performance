@@ -4,7 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.core.scenario.Simulation
 import uk.gov.hmcts.reform.fact.performance.scenarios._
-import uk.gov.hmcts.reform.fact.performance.scenarios.utils.{Environment, Common}
+import uk.gov.hmcts.reform.fact.performance.scenarios.utils.Environment
 
 class Fact extends Simulation {
 
