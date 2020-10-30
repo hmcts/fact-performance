@@ -12,9 +12,10 @@ object Environment {
   val minThinkTime = 1
   val maxThinkTime = 1
 
+  //percentage of iterations that will go directly to a court/tribunal details page
+  val percStraightToDetailsPage = 50
+
   val HttpProtocol = http
-    //.proxy(Proxy("proxyout.reform.hmcts.net", 8080).httpsPort(8080))
-    //.noProxyFor(baseURL, idamURL, paymentURL)
 
   val commonHeader = Map(
     "accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",

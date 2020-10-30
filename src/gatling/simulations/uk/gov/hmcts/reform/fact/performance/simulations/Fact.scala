@@ -14,6 +14,8 @@ class Fact extends Simulation {
     .baseUrl(BaseURL)
     .doNotTrackHeader("1")
     .basicAuth("hmctsfact", "fact")
+    .inferHtmlResources()
+    //.silentResources
 
   val FactSimulation = scenario( "FactSimulation")
     .exec(FactScenario.FactJourney)
