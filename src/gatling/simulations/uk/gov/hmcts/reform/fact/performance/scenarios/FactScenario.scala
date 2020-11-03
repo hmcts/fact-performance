@@ -96,7 +96,7 @@ object FactScenario {
             //Keep making post requests and capture whether the following page contains radio buttons, text boxes or court URLs
             //Each capture group is optional so the resulting page's contents can be evaluated.
             //Where there are multiple options (e.g. 5 radio buttons), one is chosen at random
-            .group("Fact_03${count}_${actionURL}:${paramValue}") {
+            .group("Fact_03${count}_${actionURL}") {
 
               doIfOrElse(session => session("actionMethod").as[String].equals("POST")) {
 
