@@ -5,12 +5,12 @@ import io.gatling.http.Predef._
 
 object Environment {
 
-  //val baseURL = "https://fact.perftest.platform.hmcts.net"
+  val baseURL = "https://fact.perftest.platform.hmcts.net"
   //val baseURL = "https://fact.aat.platform.hmcts.net"
-  val baseURL = "https://hmcts-fact-prototype.herokuapp.com"
+  //val baseURL = "https://hmcts-fact-prototype.herokuapp.com"
 
-  val minThinkTime = 1
-  val maxThinkTime = 1
+  val minThinkTime = 5
+  val maxThinkTime = 7
 
   //percentage of iterations that will go directly to a court/tribunal details page
   val percStraightToDetailsPage = 50

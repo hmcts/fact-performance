@@ -22,6 +22,8 @@ object FactScenario {
 
   val randomFeeder = Iterator.continually( Map( "perc" -> Random.nextInt(100)))
   val courtURLFeeder = csv("courtURLs.csv").random
+  val postcodeFeeder = csv("postcodes.csv").random
+  val searchTermFeeder = csv("searchTerms.csv").random
 
   val FactJourney =
 
@@ -33,10 +35,10 @@ object FactScenario {
         feed(courtURLFeeder)
           .group("Fact_040_LoadCourtDetailsPage") {
             exec(http("Load Court Page")
-              .get(BaseURL + "/individual-location-pages/generic?ctsc=no&courtname=${courtURL}")
+              .get(BaseURL + "/courts/${courtURL}")
               .headers(CommonHeader)
               .headers(GetHeader)
-              .check(regex("Telephone")))
+              .check(regex("Telephone|Make a complaint:")))
           }
 
           .pause(MinThinkTime seconds, MaxThinkTime seconds)
@@ -62,17 +64,18 @@ object FactScenario {
             .get(BaseURL + "/search-option")
             .headers(CommonHeader)
             .headers(GetHeader)
-            .check(regex("<form action=.(.+?). method=.(?:post|get). novalidate>").find.optional.saveAs("action"))
             .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
             .check(regex("Do you know the name")))
         }
 
-          //set the initial values for the first post call (isknown=yes or isknown=no)
+          //set the initial values for the first post call (knowLocation=yes or knowLocation=no)
           .exec { session =>
             session
-              .set("paramName", session("radioInput").as[(String, String)]._1) //isknown
-              .set("paramValue", session("radioInput").as[(String, String)]._2) //yes or no
-              .set("actionURL", session("action").as[String]) //next URL in the sequence
+              .set("paramName", session("radioInput").as[(String, String)]._1) //knowLocation
+              //.set("paramValue", session("radioInput").as[(String, String)]._2) //yes or no
+              .set("paramValue", "yes")
+              .set("actionMethod", "POST")
+              .set("actionURL", "/search-option")
           }
 
           .pause(MinThinkTime seconds, MaxThinkTime seconds)
@@ -85,62 +88,89 @@ object FactScenario {
 
             //clear the session variables first
             exec(_.remove("action"))
-              .exec(_.remove("radioInput"))
-              .exec(_.remove("textInput"))
-              .exec(_.remove("courtURL"))
-              .exec(_.remove("sorryCantHelp"))
+            .exec(_.remove("radioInput"))
+            .exec(_.remove("textInput"))
+            .exec(_.remove("courtURL"))
+            .exec(_.remove("sorryCantHelp"))
 
-              //Keep making post requests and capture whether the following page contains radio buttons, text boxes or court URLs
-              //Each capture group is optional so the resulting page's contents can be evaluated.
-              //Where there are multiple options (e.g. 5 radio buttons), one is chosen at random
-              .group("Fact_03${count}_${actionURL}:${paramValue}") {
+            //Keep making post requests and capture whether the following page contains radio buttons, text boxes or court URLs
+            //Each capture group is optional so the resulting page's contents can be evaluated.
+            //Where there are multiple options (e.g. 5 radio buttons), one is chosen at random
+            .group("Fact_03${count}_${actionURL}:${paramValue}") {
+
+              doIfOrElse(session => session("actionMethod").as[String].equals("POST")) {
+
+                //POST calls
                 exec(http("Progress Through Journey")
                   .post(BaseURL + "${actionURL}")
                   .headers(CommonHeader)
                   .headers(PostHeader)
                   .formParam("${paramName}", "${paramValue}")
-                  .check(regex("<form action=.(.+?). method=.(?:post|get). novalidate>").find.optional.saveAs("action"))
+                  .check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
                   .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
-                  .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=""|aria-describedby)""").find.optional.saveAs("textInput"))
+                  .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\">""").find.optional.saveAs("textInput"))
                   .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
-                  .check(regex("""class="govuk-heading-m"><a href="?..(.+?)"""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
+                  .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                   .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
-              }
-
-              .pause(MinThinkTime seconds, MaxThinkTime seconds)
-
-              //If the page has radio buttons, set the session variables for the next page request
-              .doIfOrElse("${radioInput.exists()}") {
-                exec {
-                  session =>
-                    session
-                      .set("paramName", session("radioInput").as[(String, String)]._1)
-                      .set("paramValue", session("radioInput").as[(String, String)]._2)
-                      .set("actionURL", session("action").as[String])
-                }
               } {
-                //If the page has a postcode text box, set the session variables for the next page request
-                doIf("${textInput.exists()}") {
-                  doIfOrElse("${postcodeInput.exists()}") {
-                    exec {
-                      session =>
-                        session
-                          .set("paramName", session("textInput").as[String])
-                          .set("paramValue", "EH1 9SP")
-                          .set("actionURL", session("action").as[String])
-                    }
-                  } {
-                    //If the page has a non-postcode text box, set the session variables for the next page request
-                    exec {
-                      session =>
-                        session
-                          .set("paramName", session("textInput").as[String])
-                          .set("paramValue", "Blackburn")
-                          .set("actionURL", session("action").as[String])
-                    }
-                  }
+
+                doIf(session => session("actionMethod").as[String].equals("GET")) {
+
+                  //GET calls
+                  exec(http("Progress Through Journey")
+                    .get(BaseURL + "${actionURL}?${paramName}=${paramValue}")
+                    .headers(CommonHeader)
+                    .headers(GetHeader)
+                    .check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
+                    .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
+                    .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\">""").find.optional.saveAs("textInput"))
+                    .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
+                    .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
+                    .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
+
                 }
               }
+            }
+
+            .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+            //If the page has radio buttons, set the session variables for the next page request
+            .doIfOrElse("${radioInput.exists()}") {
+              exec {
+                session =>
+                  session
+                    .set("paramName", session("radioInput").as[(String, String)]._1)
+                    .set("paramValue", session("radioInput").as[(String, String)]._2)
+                    .set("actionMethod", session("action").as[(String, String)]._1)
+                    .set("actionURL", session("action").as[(String, String)]._2)
+              }
+            } {
+              //If the page has a postcode text box, set the session variables for the next page request
+              doIf("${textInput.exists()}") {
+                doIfOrElse("${postcodeInput.exists()}") {
+                  feed(postcodeFeeder)
+                    .exec {
+                      session =>
+                        session
+                          .set("paramName", session("textInput").as[String])
+                          .set("paramValue", session("postcode").as[String])
+                          .set("actionMethod", session("action").as[(String, String)]._1)
+                          .set("actionURL", session("action").as[(String, String)]._2)
+                    }
+                } {
+                  //If the page has a non-postcode text box, set the session variables for the next page request
+                  feed(searchTermFeeder)
+                    .exec {
+                      session =>
+                        session
+                          .set("paramName", session("textInput").as[String])
+                          .set("paramValue", session("searchTerm").as[String])
+                          .set("actionMethod", session("action").as[(String, String)]._1)
+                          .set("actionURL", session("action").as[(String, String)]._2)
+                    }
+                }
+              }
+            }
 
           }
 
@@ -152,10 +182,10 @@ object FactScenario {
                 .get(BaseURL + "${courtURL}")
                 .headers(CommonHeader)
                 .headers(GetHeader)
-                .check(regex("Telephone")))
+                .check(regex("Telephone|Make a complaint:")))
             }
 
-              .pause(MinThinkTime seconds, MaxThinkTime seconds)
+            .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
           }
 
