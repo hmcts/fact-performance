@@ -17,12 +17,12 @@ class Fact extends Simulation {
     .inferHtmlResources()
     .silentResources
 
-  val rampUpDurationMins = 2
-  val rampDownDurationMins = 2
-  val testDurationMins = 5
+  val rampUpDurationMins = 5
+  val rampDownDurationMins = 5
+  val testDurationMins = 60
 
   //Must be doubles to ensure the calculations result in doubles not rounded integers
-  val factHourlyTarget:Double = 500
+  val factHourlyTarget:Double = 5200
 
   val factRatePerSec = factHourlyTarget / 3600
 
