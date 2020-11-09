@@ -34,11 +34,11 @@ class Fact extends Simulation {
   val FactSimulation = scenario( "FactSimulation")
     .exec(FactScenario.FactJourney)
 
-  /*
+/*
   setUp(
     FactSimulation.inject(atOnceUsers(1))
   ).protocols(httpProtocol)
-   */
+*/
 
   setUp(
     FactSimulation.inject(
@@ -48,6 +48,5 @@ class Fact extends Simulation {
     )
   )
     .protocols(httpProtocol)
-
 
 }

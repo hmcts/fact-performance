@@ -108,7 +108,7 @@ object FactScenario {
                   .formParam("${paramName}", "${paramValue}")
                   .check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
                   .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
-                  .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\">""").find.optional.saveAs("textInput"))
+                  .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" value=\"\">""").find.optional.saveAs("textInput"))
                   .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
                   .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                   .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
