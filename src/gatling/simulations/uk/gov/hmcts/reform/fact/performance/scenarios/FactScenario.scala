@@ -15,13 +15,14 @@ object FactScenario {
   val MaxThinkTime = Environment.maxThinkTime
 
   val PercStraightToDetailsPage = Environment.percStraightToDetailsPage
+  val PercToSearchAPI = Environment.percToSearchAPI
 
   val CommonHeader = Environment.commonHeader
   val GetHeader = Environment.getHeader
   val PostHeader = Environment.postHeader
 
   val randomFeeder = Iterator.continually( Map( "perc" -> Random.nextInt(100)))
-  val randomFeeder2 = Iterator.continually( Map( "perc2" -> Random.nextInt(100)))
+
   val courtURLFeeder = csv("courtURLs.csv").random
   val postcodeFeeder = csv("postcodes.csv").random
   val searchTermFeeder = csv("searchTerms.csv").random
@@ -32,44 +33,35 @@ object FactScenario {
       .doIfOrElse(session => session("perc").as[Int] < PercStraightToDetailsPage) {
 
         //Some users will be linked directly to a random court or tribunal details page
-
         feed(courtURLFeeder)
-          .group("Fact_040_LoadCourtDetailsPage") {
-            exec(http("Load Court Page")
-              .get(BaseURL + "/courts/${courtURL}")
-              .headers(CommonHeader)
-              .headers(GetHeader)
-              .check(regex("Telephone|Make a complaint:")))
-          }
 
-          .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      } {
 
-      }
-      {
+        doIfOrElse(session => session("perc").as[Int] < (PercStraightToDetailsPage + PercToSearchAPI)) {
 
-        feed(randomFeeder2)
-          .doIfOrElse(session => session("perc2").as[Int] < 50) {
+          //Some users will hit the postcode search API then a random resulting court or tribunal details page
 
-            feed(postcodeFeeder)
-              .group("Fact_050_PostcodeSearchAPI") {
-                exec(http("Postcode Search API")
-                  .get(BaseURL + "/search/results.json?postcode=${postcode}")
-                  .headers(CommonHeader)
-                  .headers(GetHeader)
-                  .check(regex("areas_of_law")))
-              }
-
-              .pause(MinThinkTime seconds, MaxThinkTime seconds)
-
-          } { //The remaining users will be follow the entire FaCT journey
-
-            group("Fact_010_Homepage") {
-              exec(http("Load Homepage")
-                .get(BaseURL + "/")
+          feed(postcodeFeeder)
+            .group("Fact_050_PostcodeSearchAPI") {
+              exec(http("Postcode Search API")
+                .get(BaseURL + "/search/results.json?postcode=${postcode}")
                 .headers(CommonHeader)
                 .headers(GetHeader)
-                .check(regex("Use this service to find a court")))
+                .check(jsonPath("$[*].slug").findRandom.saveAs("courtURL"))
+                .check(regex("areas_of_law")))
             }
+
+            .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+        } { //The remaining users will be follow the entire FaCT journey
+
+          group("Fact_010_Homepage") {
+            exec(http("Load Homepage")
+              .get(BaseURL + "/")
+              .headers(CommonHeader)
+              .headers(GetHeader)
+              .check(regex("Use this service to find a court")))
+          }
 
             .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
@@ -96,9 +88,9 @@ object FactScenario {
             .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
             /*Keep looping whilst radio buttons or text input box is found on the next page (or the loop goes on too long)
-            Once the loop completes, the user must be on a page either:
-            - With a link to one or more courts
-            - Displaying "Sorry, we couldn't help you"*/
+          Once the loop completes, the user must be on a page either:
+          - With a link to one or more courts
+          - Displaying "Sorry, we couldn't help you"*/
             .doWhile(session => (session.contains("radioInput") || session.contains("textInput")) && session("count").as[String].toInt < 10, "count") {
 
               //clear the session variables first
@@ -125,7 +117,7 @@ object FactScenario {
                       .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                       .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" value=\"\">""").find.optional.saveAs("textInput"))
                       .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
-                      .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
+                      .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                       .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
                   } {
 
@@ -140,7 +132,7 @@ object FactScenario {
                         .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                         .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\">""").find.optional.saveAs("textInput"))
                         .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
-                        .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
+                        .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                         .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
 
                     }
@@ -187,23 +179,25 @@ object FactScenario {
                   }
                 }
 
-              }
+            }
 
-              //If the page contains one or more court URLs, get the randomly chosen URL
-              .doIf("${courtURL.exists()}") {
+        }
 
-                group("Fact_040_LoadCourtDetailsPage") {
-                  exec(http("Load Court Page")
-                    .get(BaseURL + "${courtURL}")
-                    .headers(CommonHeader)
-                    .headers(GetHeader)
-                    .check(regex("Telephone|Make a complaint:")))
-                }
+      }
 
-                .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      //If the page (or API) contains one or more court URLs, get the randomly chosen URL
+      .doIf("${courtURL.exists()}") {
 
-              }
-          }
+        group("Fact_040_LoadCourtDetailsPage") {
+          exec(http("Load Court Page")
+            .get(BaseURL + "/courts/${courtURL}")
+            .headers(CommonHeader)
+            .headers(GetHeader)
+            .check(regex("Telephone|Make a complaint:")))
+        }
+
+        .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
       }
 
 }
