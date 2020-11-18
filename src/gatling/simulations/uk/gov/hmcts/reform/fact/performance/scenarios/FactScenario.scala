@@ -80,7 +80,7 @@ object FactScenario {
               session
                 .set("paramName", session("radioInput").as[(String, String)]._1) //knowLocation
                 //.set("paramValue", session("radioInput").as[(String, String)]._2) //yes or no
-                .set("paramValue", "yes")
+                .set("paramValue", "no") //yes or no
                 .set("actionMethod", "POST")
                 .set("actionURL", "/search-option")
             }
@@ -113,10 +113,11 @@ object FactScenario {
                       .headers(CommonHeader)
                       .headers(PostHeader)
                       .formParam("${paramName}", "${paramValue}")
-                      .check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
+                      .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
+                      .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                       .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
-                      .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" value=\"\">""").find.optional.saveAs("textInput"))
-                      .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
+                      .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby)""").find.optional.saveAs("textInput"))
+                      .check(regex("id=.postcode.").find.optional.saveAs("postcodeInput"))
                       .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                       .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
                   } {
@@ -128,10 +129,12 @@ object FactScenario {
                         .get(BaseURL + "${actionURL}?${paramName}=${paramValue}")
                         .headers(CommonHeader)
                         .headers(GetHeader)
-                        .check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
+                        .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
+                        //.check(regex("<form method=.(POST|GET). action=.(.+?).>").ofType[(String, String)].find.saveAs("action"))
+                        .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                         .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
-                        .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\">""").find.optional.saveAs("textInput"))
-                        .check(regex("search-postcode").find.optional.saveAs("postcodeInput"))
+                        .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby)""").find.optional.saveAs("textInput"))
+                        .check(regex("id=.postcode.").find.optional.saveAs("postcodeInput"))
                         .check(regex("""govuk-heading-m">\n            <a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                         .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
 
@@ -148,8 +151,8 @@ object FactScenario {
                       session
                         .set("paramName", session("radioInput").as[(String, String)]._1)
                         .set("paramValue", session("radioInput").as[(String, String)]._2)
-                        .set("actionMethod", session("action").as[(String, String)]._1)
-                        .set("actionURL", session("action").as[(String, String)]._2)
+                        .set("actionMethod", "POST")
+                        .set("actionURL", session("currentPageUrl").as[String])
                   }
                 } {
                   //If the page has a postcode text box, set the session variables for the next page request
@@ -161,19 +164,19 @@ object FactScenario {
                             session
                               .set("paramName", session("textInput").as[String])
                               .set("paramValue", session("postcode").as[String])
-                              .set("actionMethod", session("action").as[(String, String)]._1)
-                              .set("actionURL", session("action").as[(String, String)]._2)
+                              .set("actionMethod", "GET")
+                              .set("actionURL", session("action").as[String])
                         }
                     } {
-                      //If the page has a non-postcode text box, set the session variables for the next page request
+                      //If the page has a non-postcode empty text box, set the session variables for the next page request
                       feed(searchTermFeeder)
                         .exec {
                           session =>
                             session
                               .set("paramName", session("textInput").as[String])
                               .set("paramValue", session("searchTerm").as[String])
-                              .set("actionMethod", session("action").as[(String, String)]._1)
-                              .set("actionURL", session("action").as[(String, String)]._2)
+                              .set("actionMethod", "GET")
+                              .set("actionURL", session("action").as[String])
                         }
                     }
                   }
