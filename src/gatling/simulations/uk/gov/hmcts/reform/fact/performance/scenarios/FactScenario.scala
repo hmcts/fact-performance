@@ -98,6 +98,7 @@ object FactScenario {
               exec(_.remove("action"))
                 .exec(_.remove("radioInput"))
                 .exec(_.remove("textInput"))
+                .exec(_.remove("postcodeInput"))
                 .exec(_.remove("courtURL"))
                 .exec(_.remove("sorryCantHelp"))
 
@@ -119,7 +120,7 @@ object FactScenario {
                       .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                       .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                       .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby|autocomplete)""").find.optional.saveAs("textInput"))
-                      .check(regex("id=.postcode.").find.optional.saveAs("postcodeInput"))
+                      .check(regex("id=.(postcode).").find.optional.saveAs("postcodeInput"))
                       .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                       .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
                   } {
@@ -136,7 +137,7 @@ object FactScenario {
                         .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                         .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                         .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby|autocomplete)""").find.optional.saveAs("textInput"))
-                        .check(regex("id=.postcode.").find.optional.saveAs("postcodeInput"))
+                        .check(regex("id=.(postcode).").find.optional.saveAs("postcodeInput"))
                         .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.transform(str => str.replace("&amp;", "&")).optional.saveAs("courtURL"))
                         .check(regex("Sorry, we couldn't help you").find.optional.saveAs("sorryCantHelp")))
 
