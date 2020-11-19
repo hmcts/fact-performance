@@ -83,6 +83,7 @@ object FactScenario {
                 //.set("paramValue", "no") //yes or no
                 .set("actionMethod", "POST")
                 .set("actionURL", "/search-option")
+                .set("transactionName", "search-option")
             }
 
             .pause(MinThinkTime seconds, MaxThinkTime seconds)
@@ -103,7 +104,7 @@ object FactScenario {
                 //Keep making post requests and capture whether the following page contains radio buttons, text boxes or court URLs
                 //Each capture group is optional so the resulting page's contents can be evaluated.
                 //Where there are multiple options (e.g. 5 radio buttons), one is chosen at random
-                .group("Fact_03${count}_${actionURL}") {
+                .group("Fact_03x_${transactionName}") {
 
                   doIfOrElse(session => session("actionMethod").as[String].equals("POST")) {
 
@@ -114,6 +115,7 @@ object FactScenario {
                       .headers(PostHeader)
                       .formParam("${paramName}", "${paramValue}")
                       .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
+                      .check(currentLocationRegex(BaseURL + """.*\/(.+)?""").saveAs("transactionName"))
                       .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                       .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                       .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby)""").find.optional.saveAs("textInput"))
@@ -130,6 +132,7 @@ object FactScenario {
                         .headers(CommonHeader)
                         .headers(GetHeader)
                         .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
+                        .check(currentLocationRegex(BaseURL + """.*\/(.+)?""").saveAs("transactionName"))
                         .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
                         .check(regex("""govuk-radios__input\" id=\".+?\" name=\"(.+?)\" type=\"radio\" value="(.+?)"""").ofType[(String, String)].findRandom.optional.saveAs("radioInput"))
                         .check(regex("""govuk-input.+\" id=\".+?\" name=\"(.+?)\" type=\"text\" (?:value=\"\">|aria-describedby)""").find.optional.saveAs("textInput"))
