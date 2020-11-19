@@ -22,7 +22,7 @@ class Fact extends Simulation {
   val testDurationMins = 60
 
   //Must be doubles to ensure the calculations result in doubles not rounded integers
-  val factHourlyTarget:Double = 5200
+  val factHourlyTarget:Double = 6000 //was 5200, but not all journeys end in a court details page, so need to bulk it up to reach targets
 
   val factRatePerSec = factHourlyTarget / 3600
 
