@@ -15,7 +15,8 @@ object Environment {
   //percentage of iterations that will go directly to a court/tribunal details page
   val percStraightToDetailsPage = 50
   //percentage of iterations that will use the postcode search API then view a court/tribunal details page
-  val percToSearchAPI = 25
+  //this is used mostly for early-look performance testing before the front-end was built
+  val percToSearchAPI = 0
 
   val HttpProtocol = http
 
