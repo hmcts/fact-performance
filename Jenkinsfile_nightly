@@ -6,7 +6,7 @@ properties([
 
 @Library("Infrastructure") _
 
-def product = "probate"
+def product = "fact"
 def component = "citizen"
 
 withNightlyPipeline("java", product, component) {

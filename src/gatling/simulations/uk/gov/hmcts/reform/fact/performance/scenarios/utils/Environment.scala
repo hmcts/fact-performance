@@ -7,16 +7,9 @@ object Environment {
 
   val baseURL = "https://fact.perftest.platform.hmcts.net"
   //val baseURL = "https://fact.aat.platform.hmcts.net"
-  //val baseURL = "https://hmcts-fact-prototype.herokuapp.com"
 
-  val minThinkTime = 5
-  val maxThinkTime = 7
-
-  //percentage of iterations that will go directly to a court/tribunal details page
-  val percStraightToDetailsPage = 55
-  //percentage of iterations that will use the postcode search API then view a court/tribunal details page
-  //this is used mostly for early-look performance testing before the front-end was built
-  val percToSearchAPI = 0
+  val minThinkTime = 1
+  val maxThinkTime = 1
 
   val HttpProtocol = http
 
