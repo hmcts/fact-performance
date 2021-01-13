@@ -22,5 +22,6 @@ class Fact_Jenkins extends Simulation {
   setUp(
     FactSimulation.inject(atOnceUsers(1))
   ).protocols(httpProtocol)
+    .assertions(global.successfulRequests.percent.is(100))
 
 }
