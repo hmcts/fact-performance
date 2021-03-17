@@ -4,6 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
 import uk.gov.hmcts.reform.fact.performance.scenarios._
 import uk.gov.hmcts.reform.fact.performance.scenarios.utils.Environment
+import scala.concurrent.duration._
 
 class Fact_Jenkins extends Simulation {
 
@@ -20,7 +21,7 @@ class Fact_Jenkins extends Simulation {
     .exec(FactScenario.FactNameNotKnown)
 
   setUp(
-    FactSimulation.inject(atOnceUsers(1))
+    FactSimulation.inject(rampUsers(10) during (5 minutes))
   ).protocols(httpProtocol)
     .assertions(global.successfulRequests.percent.is(100))
 
