@@ -21,7 +21,7 @@ class Fact_Jenkins extends Simulation {
     .exec(FactScenario.FactNameNotKnown)
 
   setUp(
-    FactSimulation.inject(rampUsers(10) during (5 minutes))
+    FactSimulation.inject(rampUsers(10) during (1 minutes))
   ).protocols(httpProtocol)
     .assertions(global.successfulRequests.percent.is(100))
 
