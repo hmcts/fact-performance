@@ -145,7 +145,7 @@ object FactScenario {
     .group("Fact_070_SearchByPostcode") {
       feed(postcodeFeeder)
         .exec(http("Search By Postcode")
-          .get(BaseURL + "/services/money/money-claims/courts/near?postcode=${postcode}")
+          .get(BaseURL + "/services/money/money-claims/nearest/courts/near?postcode=${postcode}")
           .headers(CommonHeader)
           .headers(GetHeader)
           .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.saveAs("courtURL"))
