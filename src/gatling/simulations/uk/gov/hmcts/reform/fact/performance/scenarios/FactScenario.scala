@@ -164,4 +164,24 @@ object FactScenario {
 
     .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
+     .group("Fact_090_ICanNotFindWhatImLookingFor") {
+           exec(http("I Can't Find What I'm Looking For Submit")
+             .post(BaseURL + "/services/nearest")
+             .headers(CommonHeader)
+             .headers(PostHeader)
+             .formParam("chooseService", "I can't find what I'm looking for")
+             .check(regex("Sorry, we couldn't help you")))
+         }
+
+     .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+     .group("Fact_100_SearchByCourtName") {
+                exec(http("I Can't Find What I'm Looking For Submit")
+                  .get(BaseURL + "/services/search-by-prefix")
+                  .headers(CommonHeader)
+                  .headers(GetHeader)
+                  .check(regex("Courts and Tribunals")))
+              }
+
+     .pause(MinThinkTime seconds, MaxThinkTime seconds)
 }
