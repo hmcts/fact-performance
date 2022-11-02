@@ -212,7 +212,7 @@ object FactScenario {
           .post(BaseURL + "/services/not-listed")
           .headers(CommonHeader)
           .headers(PostHeader)
-          .formParam("chooseService", "I can't find what I'm looking for")
+          .formParam("chooseService", "not-listed")
           .check(regex("Sorry, we couldn't help you")))
       }
 
@@ -224,6 +224,82 @@ object FactScenario {
           .headers(CommonHeader)
           .headers(PostHeader)
           .check(regex("Courts and Tribunals")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+  val FactFindCourtToSendDocuments =
+
+    group("Fact_010_Homepage") {
+      exec(http("Load Homepage")
+        .get(BaseURL + "/")
+        .headers(CommonHeader)
+        .headers(GetHeader)
+        .check(regex("Use this service to find a court")))
+    }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_020_Start") {
+        exec(http("Load Start Page")
+          .get(BaseURL + "/search-option")
+          .headers(CommonHeader)
+          .headers(GetHeader)
+          .check(regex("Do you know the name")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_030_NameNotKnownSubmit") {
+        exec(http("Name Not Known Submit")
+          .post(BaseURL + "/search-option")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("knowLocation", "no")
+          .check(regex("What do you want to do")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_040_ItIsNotListedHere") {
+        exec(http("Send Documents Submit")
+          .post(BaseURL + "/service-choose-action")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("chooseAction", "documents")
+          .check(regex("What do you want to know more about")))
+      }
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_050_DocumentsProbateAndDivorceSubmit") {
+        exec(http("Not Listed I Can't Find What I'm Looking For Submit")
+          .post(BaseURL + "/services/documents")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("chooseService", "probate-divorce-or-ending-civil-partnerships")
+          .check(regex("What kind of help do you need with probate, divorce or ending civil partnerships?")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_060_DocumentsProbateSubmit") {
+        exec(http("Nearest Money Claims Submit")
+          .post(BaseURL + "services/probate-divorce-or-ending-civil-partnerships/service-areas/documents")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("serviceArea", "probate")
+          .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.saveAs("courtURL"))
+          .check(regex("Court or tribunal search results")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_070_LoadCourtDetailsPage") {
+        exec(http("Load Court Page")
+          .get(BaseURL + "/courts/${courtURL}")
+          .headers(CommonHeader)
+          .headers(GetHeader)
+          .check(regex("Telephone|Make a complaint:")))
       }
 
       .pause(MinThinkTime seconds, MaxThinkTime seconds)

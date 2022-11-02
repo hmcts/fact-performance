@@ -20,6 +20,7 @@ class Fact_Jenkins extends Simulation {
     .exec(FactScenario.FactNameKnown)
     .exec(FactScenario.FactNameNotKnown)
     .exec(FactScenario.FactICanNotFindWhatImLookingFor)
+    .exec(FactScenario.FactFindCourtToSendDocuments)
 
   setUp(
     FactSimulation.inject(rampUsers(10) during (1 minutes))
