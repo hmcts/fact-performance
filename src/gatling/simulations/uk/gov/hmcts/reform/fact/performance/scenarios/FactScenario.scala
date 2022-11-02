@@ -220,9 +220,9 @@ object FactScenario {
 
       .group("Fact_060_SearchByCourtName") {
         exec(http("Not Listed Search by Prefix For Submit")
-          .get(BaseURL + "/services/search-by-prefix")
+          .post(BaseURL + "/services/search-by-prefix")
           .headers(CommonHeader)
-          .headers(GetHeader)
+          .headers(PostHeader)
           .check(regex("Courts and Tribunals")))
       }
 
