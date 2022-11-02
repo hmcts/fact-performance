@@ -19,6 +19,7 @@ class Fact_Jenkins extends Simulation {
   val FactSimulation = scenario( "FactSimulation")
     .exec(FactScenario.FactNameKnown)
     .exec(FactScenario.FactNameNotKnown)
+    .exec(FactScenario.FactICanNotFindWhatImLookingFor)
 
   setUp(
     FactSimulation.inject(rampUsers(10) during (1 minutes))

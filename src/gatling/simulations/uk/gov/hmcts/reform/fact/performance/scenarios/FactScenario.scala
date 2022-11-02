@@ -185,4 +185,67 @@ object FactScenario {
 
      .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
+  val FactICanNotFindWhatImLookingFor =
+
+    group("Fact_010_Homepage") {
+      exec(http("Load Homepage")
+        .get(BaseURL + "/")
+        .headers(CommonHeader)
+        .headers(GetHeader)
+        .check(regex("Use this service to find a court")))
+    }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_020_Start") {
+        exec(http("Load Start Page")
+          .get(BaseURL + "/search-option")
+          .headers(CommonHeader)
+          .headers(GetHeader)
+          .check(regex("Do you know the name")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_030_NameNotKnownSubmit") {
+        exec(http("Name Not Known Submit")
+          .post(BaseURL + "/search-option")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("knowLocation", "no")
+          .check(regex("What do you want to do")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_040_ItIsNotListedHere") {
+        exec(http("Not Listed Submit")
+          .post(BaseURL + "/service-choose-action")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("chooseAction", "not-listed")
+          .check(regex("What do you want to know more about")))
+      }
+
+      .group("Fact_050_ICanNotFindWhatImLookingFor") {
+        exec(http("Not Listed I Can't Find What I'm Looking For Submit")
+          .post(BaseURL + "/services/not-listed")
+          .headers(CommonHeader)
+          .headers(PostHeader)
+          .formParam("chooseService", "I can't find what I'm looking for")
+          .check(regex("Sorry, we couldn't help you")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
+      .group("Fact_060_SearchByCourtName") {
+        exec(http("Not Listed Search by Prefix For Submit")
+          .get(BaseURL + "/services/search-by-prefix")
+          .headers(CommonHeader)
+          .headers(GetHeader)
+          .check(regex("Courts and Tribunals")))
+      }
+
+      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+
 }
