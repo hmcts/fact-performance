@@ -277,7 +277,7 @@ object FactScenario {
           .headers(CommonHeader)
           .headers(PostHeader)
           .formParam("chooseService", "probate-divorce-or-ending-civil-partnerships")
-          .check(regex("What kind of help do you need with probate, divorce or ending civil partnerships?")))
+          .check(regex("What kind of help do you need with probate, divorce or ending civil partnerships")))
       }
 
       .pause(MinThinkTime seconds, MaxThinkTime seconds)
