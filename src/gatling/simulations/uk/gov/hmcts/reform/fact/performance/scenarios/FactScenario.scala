@@ -272,7 +272,7 @@ object FactScenario {
       .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
       .group("Fact_050_DocumentsProbateAndDivorceSubmit") {
-        exec(http("Not Listed I Can't Find What I'm Looking For Submit")
+        exec(http("Documents Probate and Divorce Submit")
           .post(BaseURL + "/services/documents")
           .headers(CommonHeader)
           .headers(PostHeader)
@@ -283,7 +283,7 @@ object FactScenario {
       .pause(MinThinkTime seconds, MaxThinkTime seconds)
 
       .group("Fact_060_DocumentsProbateSubmit") {
-        exec(http("Nearest Money Claims Submit")
+        exec(http("Documents Probate Submit")
           .post(BaseURL + "services/probate-divorce-or-ending-civil-partnerships/service-areas/documents")
           .headers(CommonHeader)
           .headers(PostHeader)
