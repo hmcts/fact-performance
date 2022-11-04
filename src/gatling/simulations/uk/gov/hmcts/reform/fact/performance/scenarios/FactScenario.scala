@@ -209,9 +209,9 @@ object FactScenario {
 
       .group("Fact_050_ICanNotFindWhatImLookingFor") {
         exec(http("Not Listed I Can't Find What I'm Looking For Submit")
-          .post(BaseURL + "/services/not-listed")
+          .get(BaseURL + "/services/not-listed")
           .headers(CommonHeader)
-          .headers(PostHeader)
+          .headers(GetHeader)
           .formParam("chooseService", "not-listed")
           .check(regex("Sorry, we couldn't help you")))
       }
@@ -220,9 +220,9 @@ object FactScenario {
 
       .group("Fact_060_SearchByCourtName") {
         exec(http("Not Listed Search by Prefix For Submit")
-          .post(BaseURL + "/services/search-by-prefix")
+          .get(BaseURL + "/services/search-by-prefix")
           .headers(CommonHeader)
-          .headers(PostHeader)
+          .headers(GetHeader)
           .check(regex("Courts and Tribunals")))
       }
 
@@ -284,7 +284,7 @@ object FactScenario {
 
       .group("Fact_060_DocumentsProbateSubmit") {
         exec(http("Documents Probate Submit")
-          .post(BaseURL + "services/probate-divorce-or-ending-civil-partnerships/service-areas/documents")
+          .post(BaseURL + "/services/probate-divorce-or-ending-civil-partnerships/service-areas/documents")
           .headers(CommonHeader)
           .headers(PostHeader)
           .formParam("serviceArea", "probate")
