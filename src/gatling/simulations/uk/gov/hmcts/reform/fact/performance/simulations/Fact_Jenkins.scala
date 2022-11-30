@@ -23,7 +23,7 @@ class Fact_Jenkins extends Simulation {
     .exec(FactScenario.FactFindCourtToSendDocuments)
 
   setUp(
-    FactSimulation.inject(rampUsers(25) during (2 minutes))
+    FactSimulation.inject(rampUsers(10) during (1 minutes))
   ).protocols(httpProtocol)
     .assertions(forAll.successfulRequests.percent.gte(80))
 
