@@ -6,8 +6,6 @@ import io.gatling.http.Predef._
 object Environment {
 
   val baseURL = "https://fact.perftest.platform.hmcts.net"
-  //val baseURL = "https://fact.aat.platform.hmcts.net"
-  //val baseURL = "https://hmcts-fact-prototype.herokuapp.com"
 
   val minThinkTime = 5
   val maxThinkTime = 7
