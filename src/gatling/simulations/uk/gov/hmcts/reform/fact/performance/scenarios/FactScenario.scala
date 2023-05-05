@@ -44,14 +44,14 @@ object FactScenario {
           feed(postcodeFeeder)
             .group("Fact_050_PostcodeSearchAPI") {
               exec(http("Postcode Search API")
-                .get(BaseURL + "/search/results.json?postcode=${postcode}")
+                .get(BaseURL + "/search/results.json?postcode=#{postcode}")
                 .headers(CommonHeader)
                 .headers(GetHeader)
                 .check(jsonPath("$[*].slug").findRandom.saveAs("courtURL"))
                 .check(regex("areas_of_law")))
             }
 
-            .pause(MinThinkTime seconds, MaxThinkTime seconds)
+            .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
         } { //The remaining users will be follow the entire FaCT journey
 
@@ -63,7 +63,7 @@ object FactScenario {
               .check(regex("Use this service to find a court")))
           }
 
-            .pause(MinThinkTime seconds, MaxThinkTime seconds)
+            .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
             //Do you know the name of the court or tribunal?
             .group("Fact_020_Start") {
@@ -86,7 +86,7 @@ object FactScenario {
                 .set("transactionName", "search-option")
             }
 
-            .pause(MinThinkTime seconds, MaxThinkTime seconds)
+            .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
             /*Keep looping whilst radio buttons or text input box is found on the next page (or the loop goes on too long)
           Once the loop completes, the user must be on a page either:
@@ -105,16 +105,16 @@ object FactScenario {
                 //Keep making post requests and capture whether the following page contains radio buttons, text boxes or court URLs
                 //Each capture group is optional so the resulting page's contents can be evaluated.
                 //Where there are multiple options (e.g. 5 radio buttons), one is chosen at random
-                .group("Fact_03x_${transactionName}") {
+                .group("Fact_03x_#{transactionName}") {
 
                   doIfOrElse(session => session("actionMethod").as[String].equals("POST")) {
 
                     //POST calls
                     exec(http("Progress Through Journey")
-                      .post(BaseURL + "${actionURL}")
+                      .post(BaseURL + "#{actionURL}")
                       .headers(CommonHeader)
                       .headers(PostHeader)
-                      .formParam("${paramName}", "${paramValue}")
+                      .formParam("#{paramName}", "#{paramValue}")
                       .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
                       .check(currentLocationRegex(BaseURL + """.*\/(.+)?""").saveAs("transactionName"))
                       .check(regex("<form method=.GET. action=.(.+?).>").find.optional.saveAs("action"))
@@ -129,7 +129,7 @@ object FactScenario {
 
                       //GET calls
                       exec(http("Progress Through Journey")
-                        .get(BaseURL + "${actionURL}?${paramName}=${paramValue}")
+                        .get(BaseURL + "#{actionURL}?#{paramName}=#{paramValue}")
                         .headers(CommonHeader)
                         .headers(GetHeader)
                         .check(currentLocationRegex(BaseURL + "(.+)").saveAs("currentPageUrl"))
@@ -145,10 +145,10 @@ object FactScenario {
                   }
                 }
 
-                .pause(MinThinkTime seconds, MaxThinkTime seconds)
+                .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
                 //If the page has radio buttons, set the session variables for the next page request
-                .doIfOrElse("${radioInput.exists()}") {
+                .doIfOrElse("#{radioInput.exists()}") {
                   exec {
                     session =>
                       session
@@ -159,8 +159,8 @@ object FactScenario {
                   }
                 } {
                   //If the page has a postcode text box, set the session variables for the next page request
-                  doIf("${textInput.exists()}") {
-                    doIfOrElse("${postcodeInput.exists()}") {
+                  doIf("#{textInput.exists()}") {
+                    doIfOrElse("#{postcodeInput.exists()}") {
                       feed(postcodeFeeder)
                         .exec {
                           session =>
@@ -192,17 +192,17 @@ object FactScenario {
       }
 
       //If the page (or API) contains one or more court URLs, get the randomly chosen URL
-      .doIf("${courtURL.exists()}") {
+      .doIf("#{courtURL.exists()}") {
 
         group("Fact_040_LoadCourtDetailsPage") {
           exec(http("Load Court Page")
-            .get(BaseURL + "/courts/${courtURL}")
+            .get(BaseURL + "/courts/#{courtURL}")
             .headers(CommonHeader)
             .headers(GetHeader)
             .check(regex("Telephone|Make a complaint:")))
         }
 
-        .pause(MinThinkTime seconds, MaxThinkTime seconds)
+        .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       }
 

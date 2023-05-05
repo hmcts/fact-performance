@@ -38,7 +38,7 @@ class Fact extends Simulation {
   setUp(
     FactSimulation.inject(atOnceUsers(1))
   ).protocols(httpProtocol)
-*/
+ */
 
   setUp(
     FactSimulation.inject(
