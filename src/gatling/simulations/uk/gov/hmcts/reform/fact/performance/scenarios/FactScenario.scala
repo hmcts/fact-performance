@@ -30,7 +30,7 @@ object FactScenario {
         .check(regex("Use this service to find a court")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_020_Start") {
       exec(http("Load Start Page")
@@ -40,7 +40,7 @@ object FactScenario {
         .check(regex("Do you know the name")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_030_NameKnownSubmit") {
       exec(http("Name Known Submit")
@@ -51,29 +51,29 @@ object FactScenario {
         .check(regex("What is the name or address")))
       }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_040_SeachByName") {
       feed(searchTermFeeder)
         .exec(http("Search By Name")
-          .get(BaseURL + "/courts?search=${searchTerm}")
+          .get(BaseURL + "/courts?search=#{searchTerm}")
           .headers(CommonHeader)
           .headers(GetHeader)
           .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.saveAs("courtURL"))
           .check(regex("matching your search")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_080_LoadCourtDetailsPage") {
       exec(http("Load Court Page")
-        .get(BaseURL + "/courts/${courtURL}")
+        .get(BaseURL + "/courts/#{courtURL}")
         .headers(CommonHeader)
         .headers(GetHeader)
         .check(regex("Telephone|Make a complaint:")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
 
   val FactNameNotKnown =
@@ -86,7 +86,7 @@ object FactScenario {
         .check(regex("Use this service to find a court")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_020_Start") {
       exec(http("Load Start Page")
@@ -96,7 +96,7 @@ object FactScenario {
         .check(regex("Do you know the name")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_030_NameNotKnownSubmit") {
       exec(http("Name Not Known Submit")
@@ -107,7 +107,7 @@ object FactScenario {
         .check(regex("What do you want to do")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_040_NearestSubmit") {
       exec(http("Nearest Submit")
@@ -118,7 +118,7 @@ object FactScenario {
         .check(regex("What do you want to know more about")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_050_NearestMoneySubmit") {
       exec(http("Nearest Money Submit")
@@ -129,7 +129,7 @@ object FactScenario {
         .check(regex("What kind of help do you need with money")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_060_NearestMoneyClaimsSubmit") {
       exec(http("Nearest Money Claims Submit")
@@ -140,29 +140,29 @@ object FactScenario {
         .check(regex("What is your postcode")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_070_SearchByPostcode") {
       feed(postcodeFeeder)
         .exec(http("Search By Postcode")
-          .get(BaseURL + "/services/money/money-claims/nearest/courts/near?postcode=${postcode}")
+          .get(BaseURL + "/services/money/money-claims/nearest/courts/near?postcode=#{postcode}")
           .headers(CommonHeader)
           .headers(GetHeader)
           .check(regex("""govuk-heading-m">\n +?<a class="govuk-link" href="/courts/(.+?)">""").findRandom.saveAs("courtURL"))
           .check(regex("Court or tribunal search results")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
     .group("Fact_080_LoadCourtDetailsPage") {
       exec(http("Load Court Page")
-        .get(BaseURL + "/courts/${courtURL}")
+        .get(BaseURL + "/courts/#{courtURL}")
         .headers(CommonHeader)
         .headers(GetHeader)
         .check(regex("Telephone|Make a complaint:")))
     }
 
-    .pause(MinThinkTime seconds, MaxThinkTime seconds)
+    .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
 
   val FactICanNotFindWhatImLookingFor =
@@ -175,7 +175,7 @@ object FactScenario {
         .check(regex("Use this service to find a court")))
     }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_020_Start") {
         exec(http("Load Start Page")
@@ -185,7 +185,7 @@ object FactScenario {
           .check(regex("Do you know the name")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_030_NameNotKnownSubmit") {
         exec(http("Name Not Known Submit")
@@ -196,7 +196,7 @@ object FactScenario {
           .check(regex("What do you want to do")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_040_ItIsNotListedHere") {
         exec(http("Not Listed Submit")
@@ -216,7 +216,7 @@ object FactScenario {
           .check(regex("Sorry, we couldn't help you")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_060_SearchByCourtName") {
         exec(http("Not Listed Search by Prefix For Submit")
@@ -226,7 +226,7 @@ object FactScenario {
           .check(regex("Courts and Tribunals")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
   val FactFindCourtToSendDocuments =
 
@@ -238,7 +238,7 @@ object FactScenario {
         .check(regex("Use this service to find a court")))
     }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_020_Start") {
         exec(http("Load Start Page")
@@ -248,7 +248,7 @@ object FactScenario {
           .check(regex("Do you know the name")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_030_NameNotKnownSubmit") {
         exec(http("Name Not Known Submit")
@@ -259,7 +259,7 @@ object FactScenario {
           .check(regex("What do you want to do")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_040_ItIsNotListedHere") {
         exec(http("Send Documents Submit")
@@ -269,7 +269,7 @@ object FactScenario {
           .formParam("chooseAction", "documents")
           .check(regex("What do you want to know more about")))
       }
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_050_DocumentsProbateAndDivorceSubmit") {
         exec(http("Documents Probate and Divorce Submit")
@@ -280,7 +280,7 @@ object FactScenario {
           .check(regex("What kind of help do you need with probate, divorce or ending civil partnerships")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_060_DocumentsProbateSubmit") {
         exec(http("Documents Probate Submit")
@@ -292,16 +292,16 @@ object FactScenario {
           .check(regex("Court or tribunal search results")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
       .group("Fact_070_LoadCourtDetailsPage") {
         exec(http("Load Court Page")
-          .get(BaseURL + "/courts/${courtURL}")
+          .get(BaseURL + "/courts/#{courtURL}")
           .headers(CommonHeader)
           .headers(GetHeader)
           .check(regex("Telephone|Make a complaint:")))
       }
 
-      .pause(MinThinkTime seconds, MaxThinkTime seconds)
+      .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
 
 }
