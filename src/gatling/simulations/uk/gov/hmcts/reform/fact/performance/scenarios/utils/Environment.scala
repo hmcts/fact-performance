@@ -8,8 +8,8 @@ object Environment {
   //val baseURL = "https://fact.perftest.platform.hmcts.net"
   val baseURL = "https://fact.aat.platform.hmcts.net"
 
-  val minThinkTime = 1
-  val maxThinkTime = 1
+  val minThinkTime = 2
+  val maxThinkTime = 2
 
   val HttpProtocol = http
 
