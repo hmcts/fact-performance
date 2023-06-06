@@ -9,7 +9,7 @@ object Environment {
   val baseURL = "https://fact.aat.platform.hmcts.net"
 
   val minThinkTime = 2
-  val maxThinkTime = 2
+  val maxThinkTime = 5
 
   val HttpProtocol = http
 
