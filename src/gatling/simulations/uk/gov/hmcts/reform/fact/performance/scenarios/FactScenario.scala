@@ -209,11 +209,11 @@ object FactScenario {
 
       .group("Fact_050_ICanNotFindWhatImLookingFor") {
         exec(http("Not Listed I Can't Find What I'm Looking For Submit")
-          .get(BaseURL + "/services/not-listed")
+          .post(BaseURL + "/services/not-listed")
           .headers(CommonHeader)
-          .headers(GetHeader)
+          .headers(PostHeader)
           .formParam("chooseService", "not-listed")
-          .check(regex("Sorry, we couldn't help you")))
+          .check(regex("Sorry, we couldn&#39;t help you")))
       }
 
       .pause(MinThinkTime.seconds, MaxThinkTime.seconds)
