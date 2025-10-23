@@ -11,6 +11,10 @@ def component = "citizen"
 
 withNightlyPipeline("java", product, component) {
 
+    afterAlways('checkout') {
+        sh """ git submodule update --init --recursive"""
+    }
+
     enablePerformanceTest(timeout=20, perfGatlingAlerts=true, perfRerunOnFail=true)
 
     after('performanceTest') {
